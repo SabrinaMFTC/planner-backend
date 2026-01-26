@@ -1,6 +1,6 @@
 package com.sabrinamidori.api.domain.enums;
 
-public enum Weekday {
+public enum WeekDay {
     MONDAY,
     TUESDAY,
     WEDNESDAY,

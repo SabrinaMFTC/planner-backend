@@ -1,5 +1,6 @@
 package com.sabrinamidori.api.domain.entity.task;
 
+import com.sabrinamidori.api.domain.entity.subject.Subject;
 import com.sabrinamidori.api.domain.enums.TaskStatus;
 import jakarta.persistence.*;
 
@@ -11,7 +12,7 @@ import java.util.UUID;
 public class Task {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Enumerated(EnumType.STRING)
@@ -19,8 +20,15 @@ public class Task {
     private TaskStatus taskStatus;
 
     @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
     private String description;
 
     @Column(name = "due_date_time", nullable = false)
     private LocalDateTime dueDateTime;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "subject_id", nullable = false)
+    private Subject subject;
 }

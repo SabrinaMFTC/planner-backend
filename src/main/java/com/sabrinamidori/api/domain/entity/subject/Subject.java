@@ -1,9 +1,12 @@
 package com.sabrinamidori.api.domain.entity.subject;
 
-import com.sabrinamidori.api.domain.enums.Weekday;
+import com.sabrinamidori.api.domain.entity.task.Task;
+import com.sabrinamidori.api.domain.enums.WeekDay;
 import jakarta.persistence.*;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -11,7 +14,7 @@ import java.util.UUID;
 public class Subject {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
@@ -19,7 +22,7 @@ public class Subject {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "week_day", nullable = false)
-    private Weekday weekDay;
+    private WeekDay weekDay;
 
     @Column(name = "start_time", nullable = false)
     private LocalTime startTime;
@@ -29,4 +32,7 @@ public class Subject {
 
     @Column(nullable = false)
     private String teacher;
+
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Task> tasks = new ArrayList<>();
 }

@@ -1,6 +1,9 @@
 package com.sabrinamidori.api.repository;
 
+import com.sabrinamidori.api.domain.entity.subject.Subject;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface SubjectRepository extends JpaRepository<> {
+import java.util.UUID;
+
+public interface SubjectRepository extends JpaRepository<Subject, UUID> {
 }
