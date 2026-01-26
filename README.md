@@ -1,1 +1,1 @@
-# BasicCRUD
+# Study Planner

@@ -3,12 +3,20 @@ package com.sabrinamidori.api.domain.entity.task;
 import com.sabrinamidori.api.domain.entity.subject.Subject;
 import com.sabrinamidori.api.domain.enums.TaskStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "tasks")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Task {
 
     @Id

@@ -5,5 +5,19 @@ public enum WeekDay {
     TUESDAY,
     WEDNESDAY,
     THURSDAY,
-    FRIDAY
+    FRIDAY;
+
+    public static WeekDay from(String value) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Week day must not be null or blank");
+        }
+
+        try {
+            return WeekDay.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                "Invalid week day: " + value
+            );
+        }
+    }
 }
