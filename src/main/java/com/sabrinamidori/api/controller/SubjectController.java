@@ -3,6 +3,7 @@ package com.sabrinamidori.api.controller;
 import com.sabrinamidori.api.dto.subject.SubjectRequest;
 import com.sabrinamidori.api.dto.subject.SubjectResponse;
 import com.sabrinamidori.api.service.SubjectService;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +22,8 @@ public class SubjectController {
     }
 
     @PostMapping
-    public ResponseEntity<SubjectResponse> create(@RequestBody SubjectRequest request) {
-        SubjectResponse response = subjectService.create(request);
+    public ResponseEntity<SubjectResponse> post(@RequestBody SubjectRequest request) {
+        SubjectResponse response = subjectService.createSubject(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -36,9 +37,16 @@ public class SubjectController {
         return ResponseEntity.ok(subjectService.findSubjects());
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<SubjectResponse> update(@PathVariable UUID id,
+                                                         @RequestBody SubjectRequest request) {
+        SubjectResponse response = subjectService.updateSubject(id, request);
+        return ResponseEntity.ok(response);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        subjectService.delete(id);
+        subjectService.deleteSubject(id);
         return ResponseEntity.noContent().build();
     }
 }

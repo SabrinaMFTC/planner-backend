@@ -26,7 +26,7 @@ public class SubjectService {
         this.subjectRepository = subjectRepository;
     }
 
-    public SubjectResponse create(SubjectRequest data) {
+    public SubjectResponse createSubject(SubjectRequest data) {
         String normalized = normalize(data.title());
 
         if (subjectRepository.existsByNormalizedTitle(normalized)) {
@@ -36,14 +36,7 @@ public class SubjectService {
         }
 
         Subject subject = new Subject();
-        subject.setTitle(data.title());
-        subject.setProfessor(data.professor());
-
-        List<SubjectSchedule> schedules = buildSchedules(data.schedules(), subject);
-        subject.getSchedules().addAll(schedules);
-
-        Subject saved = subjectRepository.save(subject);
-        return toSubjectResponse(saved);
+        return setData(subject, data);
     }
 
     public List<SubjectResponse> findSubjects() {
@@ -64,7 +57,24 @@ public class SubjectService {
         return toSubjectResponse(subject);
     }
 
-    public void delete(UUID id) {
+    public SubjectResponse updateSubject(UUID id, SubjectRequest data) {
+        Subject subject = subjectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Subject with id " + id + " not found"
+                ));
+
+        String normalized = normalize(data.title());
+
+        if (subjectRepository.existsByNormalizedTitleAndIdNot(normalized, id)) {
+            throw new DuplicateResourceException(
+                    "Subject with title '" + data.title() + "' already exists"
+            );
+        }
+
+        return setData(subject, data);
+    }
+
+    public void deleteSubject(UUID id) {
         Subject subject = subjectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Subject with id " + id + " not found"
@@ -74,8 +84,11 @@ public class SubjectService {
     }
 
     private List<SubjectSchedule> buildSchedules(List<ScheduleRequest> schedules, Subject subject) {
-        return schedules
-                .stream()
+        if (schedules == null || schedules.isEmpty()) {
+            return List.of();
+        }
+
+        return schedules.stream()
                 .map(item -> {
                     WeekDay weekDay = WeekDay.from(item.weekDay());
 
@@ -108,5 +121,18 @@ public class SubjectService {
                 schedule.getStartTime(),
                 schedule.getEndTime()
         );
+    }
+
+    private SubjectResponse setData(Subject subject, SubjectRequest data) {
+        subject.setTitle(data.title());
+        subject.setProfessor(data.professor());
+
+        List<SubjectSchedule> schedules = buildSchedules(data.schedules(), subject);
+
+        subject.getSchedules().clear();
+        subject.getSchedules().addAll(schedules);
+
+        Subject saved = subjectRepository.save(subject);
+        return toSubjectResponse(saved);
     }
 }
