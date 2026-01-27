@@ -16,7 +16,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubjectSchedules {
+public class SubjectSchedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

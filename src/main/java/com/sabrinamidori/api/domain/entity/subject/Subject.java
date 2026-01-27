@@ -27,10 +27,10 @@ public class Subject {
     private String title;
 
     @Column(nullable = false)
-    private String teacher;
+    private String professor;
 
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SubjectSchedules> schedules = new ArrayList<>();
+    private List<SubjectSchedule> schedules = new ArrayList<>();
 
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks = new ArrayList<>();
