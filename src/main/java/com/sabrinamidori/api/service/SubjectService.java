@@ -8,10 +8,12 @@ import com.sabrinamidori.api.dto.subject.CreateSubjectRequest;
 import com.sabrinamidori.api.dto.subject.ScheduleResponse;
 import com.sabrinamidori.api.dto.subject.SubjectResponse;
 import com.sabrinamidori.api.exception.DuplicateResourceException;
+import com.sabrinamidori.api.exception.ResourceNotFoundException;
 import com.sabrinamidori.api.repository.SubjectRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class SubjectService {
@@ -25,7 +27,7 @@ public class SubjectService {
     public SubjectResponse create(CreateSubjectRequest data) {
         if (subjectRepository.existsByTitle(data.title())) {
             throw new DuplicateResourceException(
-                    "Subject with title '" + data.title() + "' already exists."
+                    "Subject with title '" + data.title() + "' already exists"
             );
         }
 
@@ -40,6 +42,15 @@ public class SubjectService {
         Subject saved = subjectRepository.save(subject);
 
         return toSubjectResponse(saved);
+    }
+
+    public void delete(UUID id) {
+        Subject subject = subjectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Subject with id " + id + " not found"
+                ));
+
+        subjectRepository.delete(subject);
     }
 
     private List<SubjectSchedule> buildSchedules(List<CreateScheduleRequest> schedules, Subject subject) {
