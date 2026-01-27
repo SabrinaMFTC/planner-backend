@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.sabrinamidori.api.domain.util.TextNormalizer.normalize;
+
 @Entity
 @Table(name = "subjects")
 @Getter
@@ -26,6 +28,9 @@ public class Subject {
     @Column(nullable = false)
     private String title;
 
+    @Column(nullable = false, unique = true)
+    private String normalizedTitle;
+
     @Column(nullable = false)
     private String professor;
 
@@ -34,4 +39,10 @@ public class Subject {
 
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks = new ArrayList<>();
+
+    @PrePersist
+    @PreUpdate
+    private void normalizeTitle() {
+        this.normalizedTitle = normalize(this.title);
+    }
 }
