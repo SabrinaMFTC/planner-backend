@@ -2,6 +2,7 @@ package com.sabrinamidori.api.service;
 
 import com.sabrinamidori.api.domain.entity.subject.Subject;
 import com.sabrinamidori.api.domain.entity.subject.SubjectSchedule;
+import com.sabrinamidori.api.domain.enums.Period;
 import com.sabrinamidori.api.domain.enums.WeekDay;
 import com.sabrinamidori.api.dto.subject.ScheduleRequest;
 import com.sabrinamidori.api.dto.subject.SubjectRequest;
@@ -91,11 +92,11 @@ public class SubjectService {
         return schedules.stream()
                 .map(item -> {
                     WeekDay weekDay = WeekDay.from(item.weekDay());
+                    Period period = Period.from(item.period());
 
                     SubjectSchedule schedule = new SubjectSchedule();
                     schedule.setWeekDay(weekDay);
-                    schedule.setStartTime(item.startTime());
-                    schedule.setEndTime(item.endTime());
+                    schedule.setPeriod(period);
                     schedule.setSubject(subject);
 
                     return schedule;

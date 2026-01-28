@@ -1,6 +1,5 @@
-package com.sabrinamidori.api.domain.entity.task;
+package com.sabrinamidori.api.domain.entity.subject;
 
-import com.sabrinamidori.api.domain.entity.subject.Subject;
 import com.sabrinamidori.api.domain.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,8 +26,8 @@ public class Task {
     @Column(name = "task_status", nullable = false)
     private TaskStatus taskStatus;
 
-    @Column(nullable = false)
-    private String title;
+//    @Column(nullable = false)
+//    private String title;
 
     @Column(nullable = false)
     private String description;

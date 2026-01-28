@@ -1,6 +1,5 @@
 package com.sabrinamidori.api.domain.entity.subject;
 
-import com.sabrinamidori.api.domain.entity.task.Task;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

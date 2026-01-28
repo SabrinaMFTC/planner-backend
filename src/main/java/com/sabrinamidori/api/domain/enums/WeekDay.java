@@ -15,9 +15,7 @@ public enum WeekDay {
         try {
             return WeekDay.valueOf(value.trim().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(
-                "Invalid week day: " + value
-            );
+            throw new IllegalArgumentException("Invalid week day: " + value);
         }
     }
 }

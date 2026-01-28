@@ -1,4 +1,4 @@
-package com.sabrinamidori.api.dto.task;
+package com.sabrinamidori.api.dto.subject;
 
 import java.time.LocalDate;
 

@@ -1,5 +1,6 @@
 package com.sabrinamidori.api.domain.entity.subject;
 
+import com.sabrinamidori.api.domain.enums.Period;
 import com.sabrinamidori.api.domain.enums.WeekDay;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,11 +27,15 @@ public class SubjectSchedule {
     @Column(name = "week_day", nullable = false)
     private WeekDay weekDay;
 
-    @Column(name = "start_time", nullable = false)
-    private LocalTime startTime;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Period period;
 
-    @Column(name = "end_time", nullable = false)
-    private LocalTime endTime;
+//    @Column(name = "start_time", nullable = false)
+//    private LocalTime startTime;
+//
+//    @Column(name = "end_time", nullable = false)
+//    private LocalTime endTime;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "subject_id", nullable = false)

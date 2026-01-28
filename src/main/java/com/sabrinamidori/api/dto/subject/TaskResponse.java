@@ -1,4 +1,4 @@
-package com.sabrinamidori.api.dto.task;
+package com.sabrinamidori.api.dto.subject;
 
 import com.sabrinamidori.api.domain.enums.TaskStatus;
 
