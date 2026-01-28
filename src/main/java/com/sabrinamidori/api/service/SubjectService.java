@@ -119,8 +119,7 @@ public class SubjectService {
     private ScheduleResponse toScheduleResponse(SubjectSchedule schedule) {
         return new ScheduleResponse(
                 schedule.getWeekDay(),
-                schedule.getStartTime(),
-                schedule.getEndTime()
+                schedule.getPeriod()
         );
     }
 
