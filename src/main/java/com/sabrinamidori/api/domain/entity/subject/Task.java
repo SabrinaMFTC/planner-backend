@@ -26,9 +26,6 @@ public class Task {
     @Column(name = "task_status", nullable = false)
     private TaskStatus taskStatus;
 
-//    @Column(nullable = false)
-//    private String title;
-
     @Column(nullable = false)
     private String description;
 

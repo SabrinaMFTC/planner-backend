@@ -2,12 +2,11 @@ package com.sabrinamidori.api.service;
 
 import com.sabrinamidori.api.domain.entity.subject.Subject;
 import com.sabrinamidori.api.domain.entity.subject.SubjectSchedule;
+import com.sabrinamidori.api.domain.entity.subject.Task;
 import com.sabrinamidori.api.domain.enums.Period;
+import com.sabrinamidori.api.domain.enums.TaskStatus;
 import com.sabrinamidori.api.domain.enums.WeekDay;
-import com.sabrinamidori.api.dto.subject.ScheduleRequest;
-import com.sabrinamidori.api.dto.subject.SubjectRequest;
-import com.sabrinamidori.api.dto.subject.ScheduleResponse;
-import com.sabrinamidori.api.dto.subject.SubjectResponse;
+import com.sabrinamidori.api.dto.subject.*;
 import com.sabrinamidori.api.exception.DuplicateResourceException;
 import com.sabrinamidori.api.exception.ResourceNotFoundException;
 import com.sabrinamidori.api.repository.SubjectRepository;
@@ -28,26 +27,20 @@ public class SubjectService {
     }
 
     public SubjectResponse createSubject(SubjectRequest data) {
-        String normalized = normalize(data.title());
-
-        if (subjectRepository.existsByNormalizedTitle(normalized)) {
-            throw new DuplicateResourceException(
-                    "Subject with title '" + data.title() + "' already exists"
-            );
-        }
+        validateUniqueTitle(data.title(), null);
 
         Subject subject = new Subject();
-        return setData(subject, data);
+        return toSubjectResponse(setData(subject, data));
     }
 
-    public List<SubjectResponse> findSubjects() {
+    public List<SubjectResponse> getSubjects() {
         return subjectRepository.findAll()
                 .stream()
                 .map(this::toSubjectResponse)
                 .toList();
     }
 
-    public SubjectResponse findSubjectByTitle(String title) {
+    public SubjectResponse getSubjectByTitle(String title) {
         String normalized = normalize(title);
 
         Subject subject = subjectRepository.findByNormalizedTitle(normalized)
@@ -64,15 +57,9 @@ public class SubjectService {
                         "Subject with id " + id + " not found"
                 ));
 
-        String normalized = normalize(data.title());
+        validateUniqueTitle(data.title(), id);
 
-        if (subjectRepository.existsByNormalizedTitleAndIdNot(normalized, id)) {
-            throw new DuplicateResourceException(
-                    "Subject with title '" + data.title() + "' already exists"
-            );
-        }
-
-        return setData(subject, data);
+        return toSubjectResponse(setData(subject, data));
     }
 
     public void deleteSubject(UUID id) {
@@ -82,6 +69,45 @@ public class SubjectService {
                 ));
 
         subjectRepository.delete(subject);
+    }
+
+    public TaskResponse createTask(TaskRequest data) {
+        Task task = new Task();
+        task.setTaskStatus(TaskStatus.valueOf(data.status()));
+        task.setDescription(data.description());
+        task.setDueDateTime(data.dueDatetime());
+
+        String subjectTitle = normalize(data.subject());
+
+        Subject subject = subjectRepository
+                .findByNormalizedTitle(subjectTitle)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Subject with title " + subjectTitle + " not found"
+                ));
+
+        task.setSubject(subject);
+
+        try {
+            subject.getTasks().add(task);
+        } catch (Exception e) {
+            System.out.println("Could not add task: " + e);
+        };
+
+        return toTaskResponse(task);
+    }
+
+    private void validateUniqueTitle(String title, UUID id) {
+        String normalized = normalize(title);
+
+        boolean exists = (id == null)
+                ? subjectRepository.existsByNormalizedTitle(normalized)
+                : subjectRepository.existsByNormalizedTitleAndIdNot(normalized, id);
+
+        if (exists) {
+            throw new DuplicateResourceException(
+                    "Subject with title '" + title + "' already exists"
+            );
+        }
     }
 
     private List<SubjectSchedule> buildSchedules(List<ScheduleRequest> schedules, Subject subject) {
@@ -123,7 +149,16 @@ public class SubjectService {
         );
     }
 
-    private SubjectResponse setData(Subject subject, SubjectRequest data) {
+    private TaskResponse toTaskResponse(Task task) {
+        return new TaskResponse(
+                task.getId(),
+                task.getTaskStatus(),
+                task.getDescription(),
+                task.getDueDateTime()
+        );
+    }
+
+    private Subject setData(Subject subject, SubjectRequest data) {
         subject.setTitle(data.title());
         subject.setProfessor(data.professor());
 
@@ -132,7 +167,6 @@ public class SubjectService {
         subject.getSchedules().clear();
         subject.getSchedules().addAll(schedules);
 
-        Subject saved = subjectRepository.save(subject);
-        return toSubjectResponse(saved);
+        return subjectRepository.save(subject);
     }
 }

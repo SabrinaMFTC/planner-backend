@@ -1,9 +1,9 @@
 package com.sabrinamidori.api.dto.subject;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-public record TaskRequest(String status,
-                          String title,
+public record TaskRequest(String subject,
+                          String status,
                           String description,
-                          LocalDate dueDatetime) {
+                          LocalDateTime dueDatetime) {
 }
