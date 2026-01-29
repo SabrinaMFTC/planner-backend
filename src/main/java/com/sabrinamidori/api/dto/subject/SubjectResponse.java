@@ -1,5 +1,7 @@
 package com.sabrinamidori.api.dto.subject;
 
+import com.sabrinamidori.api.dto.schedule.ScheduleResponse;
+
 import java.util.List;
 import java.util.UUID;
 

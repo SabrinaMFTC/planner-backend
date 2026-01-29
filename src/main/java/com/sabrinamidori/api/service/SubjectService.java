@@ -1,19 +1,17 @@
 package com.sabrinamidori.api.service;
 
 import com.sabrinamidori.api.domain.entity.subject.Subject;
-import com.sabrinamidori.api.domain.entity.subject.SubjectSchedule;
-import com.sabrinamidori.api.domain.entity.subject.Task;
+import com.sabrinamidori.api.domain.entity.schedule.Schedule;
 import com.sabrinamidori.api.domain.enums.Period;
-import com.sabrinamidori.api.domain.enums.TaskStatus;
 import com.sabrinamidori.api.domain.enums.WeekDay;
+import com.sabrinamidori.api.dto.schedule.ScheduleRequest;
+import com.sabrinamidori.api.dto.schedule.ScheduleResponse;
 import com.sabrinamidori.api.dto.subject.*;
 import com.sabrinamidori.api.exception.DuplicateResourceException;
 import com.sabrinamidori.api.exception.ResourceNotFoundException;
 import com.sabrinamidori.api.repository.SubjectRepository;
-import com.sabrinamidori.api.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,11 +21,9 @@ import static com.sabrinamidori.api.domain.util.TextNormalizer.normalize;
 public class SubjectService {
 
     private final SubjectRepository subjectRepository;
-    private final TaskRepository taskRepository;
 
-    public SubjectService(SubjectRepository subjectRepository, TaskRepository taskRepository) {
+    public SubjectService(SubjectRepository subjectRepository) {
         this.subjectRepository = subjectRepository;
-        this.taskRepository = taskRepository;
     }
 
     public SubjectResponse createSubject(SubjectRequest data) {
@@ -81,35 +77,6 @@ public class SubjectService {
         subjectRepository.delete(subject);
     }
 
-    public TaskResponse createTask(UUID subjectId, TaskRequest data) {
-        Subject subject = subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Subject with id " + subjectId + " not found"
-                ));
-
-        Task task = new Task();
-        task.setTaskStatus(TaskStatus.from(data.status()));
-        task.setDescription(data.description());
-        task.setDueDateTime(data.dueDateTime());
-        task.setSubject(subject);
-
-        Task saved = taskRepository.save(task);
-        return toTaskResponse(task);
-    }
-
-    public List<TaskResponse> getTasksBySubject(UUID subjectId) {
-        Subject subject = subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Subject with id " + subjectId + " not found"
-                ));
-
-        return subject.getTasks()
-                .stream()
-                .sorted(Comparator.comparing(Task::getDueDateTime))
-                .map(this::toTaskResponse)
-                .toList();
-    }
-
     private void validateUniqueTitle(String title, UUID id) {
         String normalized = normalize(title);
 
@@ -124,7 +91,7 @@ public class SubjectService {
         }
     }
 
-    private List<SubjectSchedule> buildSchedules(List<ScheduleRequest> schedules, Subject subject) {
+    private List<Schedule> buildSchedules(List<ScheduleRequest> schedules, Subject subject) {
         if (schedules == null || schedules.isEmpty()) {
             return List.of();
         }
@@ -134,7 +101,7 @@ public class SubjectService {
                     WeekDay weekDay = WeekDay.from(item.weekDay());
                     Period period = Period.from(item.period());
 
-                    SubjectSchedule schedule = new SubjectSchedule();
+                    Schedule schedule = new Schedule();
                     schedule.setWeekDay(weekDay);
                     schedule.setPeriod(period);
                     schedule.setSubject(subject);
@@ -156,31 +123,20 @@ public class SubjectService {
         );
     }
 
-    private ScheduleResponse toScheduleResponse(SubjectSchedule schedule) {
+    private ScheduleResponse toScheduleResponse(Schedule schedule) {
         return new ScheduleResponse(
                 schedule.getWeekDay(),
                 schedule.getPeriod()
         );
     }
 
-    private TaskResponse toTaskResponse(Task task) {
-        return new TaskResponse(
-                task.getId(),
-                task.getTaskStatus(),
-                task.getDescription(),
-                task.getDueDateTime()
-        );
-    }
-
-    private Subject setData(Subject subject, SubjectRequest data) {
+    private void setData(Subject subject, SubjectRequest data) {
         subject.setTitle(data.title());
         subject.setProfessor(data.professor());
 
-        List<SubjectSchedule> schedules = buildSchedules(data.schedules(), subject);
+        List<Schedule> schedules = buildSchedules(data.schedules(), subject);
 
         subject.getSchedules().clear();
         subject.getSchedules().addAll(schedules);
-
-        return subject;
     }
 }

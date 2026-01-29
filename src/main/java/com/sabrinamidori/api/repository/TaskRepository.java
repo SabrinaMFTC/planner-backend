@@ -1,6 +1,6 @@
 package com.sabrinamidori.api.repository;
 
-import com.sabrinamidori.api.domain.entity.subject.Task;
+import com.sabrinamidori.api.domain.entity.task.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

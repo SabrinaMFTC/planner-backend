@@ -1,4 +1,4 @@
-package com.sabrinamidori.api.dto.subject;
+package com.sabrinamidori.api.dto.schedule;
 
 public record ScheduleRequest(String weekDay,
                               String period) {

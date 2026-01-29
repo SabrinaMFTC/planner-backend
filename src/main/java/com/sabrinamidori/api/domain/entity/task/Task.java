@@ -1,5 +1,6 @@
-package com.sabrinamidori.api.domain.entity.subject;
+package com.sabrinamidori.api.domain.entity.task;
 
+import com.sabrinamidori.api.domain.entity.subject.Subject;
 import com.sabrinamidori.api.domain.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

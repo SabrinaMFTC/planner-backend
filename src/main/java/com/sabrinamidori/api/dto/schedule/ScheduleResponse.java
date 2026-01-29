@@ -1,4 +1,4 @@
-package com.sabrinamidori.api.dto.subject;
+package com.sabrinamidori.api.dto.schedule;
 
 import com.sabrinamidori.api.domain.enums.Period;
 import com.sabrinamidori.api.domain.enums.WeekDay;

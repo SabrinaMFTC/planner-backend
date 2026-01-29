@@ -1,5 +1,6 @@
-package com.sabrinamidori.api.domain.entity.subject;
+package com.sabrinamidori.api.domain.entity.schedule;
 
+import com.sabrinamidori.api.domain.entity.subject.Subject;
 import com.sabrinamidori.api.domain.enums.Period;
 import com.sabrinamidori.api.domain.enums.WeekDay;
 import jakarta.persistence.*;
@@ -8,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalTime;
 import java.util.UUID;
 
 @Entity
@@ -17,7 +17,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubjectSchedule {
+public class Schedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

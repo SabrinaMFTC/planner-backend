@@ -2,8 +2,6 @@ package com.sabrinamidori.api.controller;
 
 import com.sabrinamidori.api.dto.subject.SubjectRequest;
 import com.sabrinamidori.api.dto.subject.SubjectResponse;
-import com.sabrinamidori.api.dto.subject.TaskRequest;
-import com.sabrinamidori.api.dto.subject.TaskResponse;
 import com.sabrinamidori.api.service.SubjectService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,25 +48,4 @@ public class SubjectController {
         subjectService.deleteSubject(id);
         return ResponseEntity.noContent().build();
     }
-
-    @PostMapping("/{subjectId}/tasks")
-    public ResponseEntity<TaskResponse> addTask(@PathVariable UUID subjectId,
-                                                @RequestBody TaskRequest task) {
-        TaskResponse response = subjectService.createTask(subjectId, task);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @GetMapping("/{subjectId}/tasks")
-    public ResponseEntity<List<TaskResponse>> getTasks(@PathVariable UUID subjectId) {
-        List<TaskResponse> response = subjectService.getTasksBySubject(subjectId);
-
-        return ResponseEntity.ok(response);
-    }
-//
-//    @PatchMapping()
-
-
-    // updateTask
-    // deleteTask
 }
