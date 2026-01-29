@@ -44,4 +44,9 @@ public class Subject {
     private void normalizeTitle() {
         this.normalizedTitle = normalize(this.title);
     }
+
+    public void addTask(Task task) {
+        task.setSubject(this);
+        this.tasks.add(task);
+    }
 }

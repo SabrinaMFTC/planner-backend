@@ -10,8 +10,10 @@ import com.sabrinamidori.api.dto.subject.*;
 import com.sabrinamidori.api.exception.DuplicateResourceException;
 import com.sabrinamidori.api.exception.ResourceNotFoundException;
 import com.sabrinamidori.api.repository.SubjectRepository;
+import com.sabrinamidori.api.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,16 +23,21 @@ import static com.sabrinamidori.api.domain.util.TextNormalizer.normalize;
 public class SubjectService {
 
     private final SubjectRepository subjectRepository;
+    private final TaskRepository taskRepository;
 
-    public SubjectService(SubjectRepository subjectRepository) {
+    public SubjectService(SubjectRepository subjectRepository, TaskRepository taskRepository) {
         this.subjectRepository = subjectRepository;
+        this.taskRepository = taskRepository;
     }
 
     public SubjectResponse createSubject(SubjectRequest data) {
         validateUniqueTitle(data.title(), null);
 
         Subject subject = new Subject();
-        return toSubjectResponse(setData(subject, data));
+        setData(subject, data);
+
+        Subject saved = subjectRepository.save(subject);
+        return toSubjectResponse(saved);
     }
 
     public List<SubjectResponse> getSubjects() {
@@ -59,7 +66,10 @@ public class SubjectService {
 
         validateUniqueTitle(data.title(), id);
 
-        return toSubjectResponse(setData(subject, data));
+        setData(subject, data);
+
+        Subject saved = subjectRepository.save(subject);
+        return toSubjectResponse(saved);
     }
 
     public void deleteSubject(UUID id) {
@@ -71,29 +81,33 @@ public class SubjectService {
         subjectRepository.delete(subject);
     }
 
-    public TaskResponse createTask(TaskRequest data) {
-        Task task = new Task();
-        task.setTaskStatus(TaskStatus.valueOf(data.status()));
-        task.setDescription(data.description());
-        task.setDueDateTime(data.dueDatetime());
-
-        String subjectTitle = normalize(data.subject());
-
-        Subject subject = subjectRepository
-                .findByNormalizedTitle(subjectTitle)
+    public TaskResponse createTask(UUID subjectId, TaskRequest data) {
+        Subject subject = subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Subject with title " + subjectTitle + " not found"
+                        "Subject with id " + subjectId + " not found"
                 ));
 
+        Task task = new Task();
+        task.setTaskStatus(TaskStatus.from(data.status()));
+        task.setDescription(data.description());
+        task.setDueDateTime(data.dueDateTime());
         task.setSubject(subject);
 
-        try {
-            subject.getTasks().add(task);
-        } catch (Exception e) {
-            System.out.println("Could not add task: " + e);
-        };
-
+        Task saved = taskRepository.save(task);
         return toTaskResponse(task);
+    }
+
+    public List<TaskResponse> getTasksBySubject(UUID subjectId) {
+        Subject subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Subject with id " + subjectId + " not found"
+                ));
+
+        return subject.getTasks()
+                .stream()
+                .sorted(Comparator.comparing(Task::getDueDateTime))
+                .map(this::toTaskResponse)
+                .toList();
     }
 
     private void validateUniqueTitle(String title, UUID id) {
@@ -167,6 +181,6 @@ public class SubjectService {
         subject.getSchedules().clear();
         subject.getSchedules().addAll(schedules);
 
-        return subjectRepository.save(subject);
+        return subject;
     }
 }

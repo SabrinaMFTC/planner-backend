@@ -51,14 +51,24 @@ public class SubjectController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/tasks")
-    public ResponseEntity<TaskResponse> addTask(@RequestBody TaskRequest task) {
-        TaskResponse response = subjectService.createTask(task);
+    @PostMapping("/{subjectId}/tasks")
+    public ResponseEntity<TaskResponse> addTask(@PathVariable UUID subjectId,
+                                                @RequestBody TaskRequest task) {
+        TaskResponse response = subjectService.createTask(subjectId, task);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // getTasks
+    @GetMapping("/{subjectId}/tasks")
+    public ResponseEntity<List<TaskResponse>> getTasks(@PathVariable UUID subjectId) {
+        List<TaskResponse> response = subjectService.getTasksBySubject(subjectId);
+
+        return ResponseEntity.ok(response);
+    }
+//
+//    @PatchMapping()
+
+
     // updateTask
     // deleteTask
 }
