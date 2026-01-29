@@ -35,7 +35,15 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
-//    @PatchMapping()
+
+    // poder atualizar qualquer campo de uma task: description, duedatetime e status
+    @PatchMapping("/tasks/{taskId}")
+    public ResponseEntity<TaskResponse> updateTask(@PathVariable UUID subjectId,
+                                                   @PathVariable UUID taskId,
+                                                   @RequestBody TaskRequest) {
+
+    }
+
 
 
     // updateTask

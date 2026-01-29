@@ -54,6 +54,28 @@ public class TaskService {
                 .toList();
     }
 
+    public TaskResponse updateTask(UUID taskId, TaskRequest data) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException((
+                        "Task with id " + taskId + " not found"
+                )));
+
+        if (data.status() != null) {
+            task.setTaskStatus(TaskStatus.from(data.status()));
+        }
+
+        if (data.description() != null) {
+            task.setDescription(data.description());
+        }
+
+        if (data.dueDateTime() != null) {
+            task.setDueDateTime(data.dueDateTime());
+        }
+
+        Task saved = taskRepository.save(task);
+        return toTaskResponse(saved);
+    }
+
     private TaskResponse toTaskResponse(Task task) {
         return new TaskResponse(
                 task.getId(),
