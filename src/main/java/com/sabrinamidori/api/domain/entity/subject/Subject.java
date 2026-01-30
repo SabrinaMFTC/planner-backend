@@ -38,17 +38,9 @@ public class Subject {
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Schedule> schedules = new ArrayList<>();
 
-    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Task> tasks = new ArrayList<>();
-
     @PrePersist
     @PreUpdate
     private void normalizeTitle() {
         this.normalizedTitle = normalize(this.title);
-    }
-
-    public void addTask(Task task) {
-        task.setSubject(this);
-        this.tasks.add(task);
     }
 }

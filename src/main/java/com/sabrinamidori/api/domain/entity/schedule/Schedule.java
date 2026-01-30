@@ -31,12 +31,6 @@ public class Schedule {
     @Column(nullable = false)
     private Period period;
 
-//    @Column(name = "start_time", nullable = false)
-//    private LocalTime startTime;
-//
-//    @Column(name = "end_time", nullable = false)
-//    private LocalTime endTime;
-
     @ManyToOne(optional = false)
     @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;

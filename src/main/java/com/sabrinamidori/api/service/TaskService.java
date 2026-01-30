@@ -17,41 +17,22 @@ import java.util.UUID;
 @Service
 public class TaskService {
 
-    private final SubjectRepository subjectRepository;
     private final TaskRepository taskRepository;
 
-    public TaskService(SubjectRepository subjectRepository, TaskRepository taskRepository) {
-        this.subjectRepository = subjectRepository;
+    public TaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 
-    public TaskResponse createTask(UUID subjectId, TaskRequest data) {
-        Subject subject = subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Subject with id " + subjectId + " not found"
-                ));
-
+    public TaskResponse createTask(TaskRequest data) {
         Task task = new Task();
-        task.setTaskStatus(TaskStatus.from(data.status()));
-        task.setDescription(data.description());
-        task.setDueDateTime(data.dueDateTime());
-        task.setSubject(subject);
+        setData(task, data);
 
         Task saved = taskRepository.save(task);
         return toTaskResponse(saved);
     }
 
-    public List<TaskResponse> getTasksBySubject(UUID subjectId) {
-        Subject subject = subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Subject with id " + subjectId + " not found"
-                ));
+    public List<TaskResponse> getTasks() {
 
-        return subject.getTasks()
-                .stream()
-                .sorted(Comparator.comparing(Task::getDueDateTime))
-                .map(this::toTaskResponse)
-                .toList();
     }
 
     public TaskResponse updateTask(UUID taskId, TaskRequest data) {
@@ -74,6 +55,14 @@ public class TaskService {
 
         Task saved = taskRepository.save(task);
         return toTaskResponse(saved);
+    }
+
+    private void setData(Task task, TaskRequest data) {
+        task.setStartTime(data.startTime());
+        task.setEndTime(data.endTime());
+        task.setDescription(data.description());
+        task.setStatus(TaskStatus.from(data.status()));
+        task.setDueDateTime(data.dueDateTime());
     }
 
     private TaskResponse toTaskResponse(Task task) {

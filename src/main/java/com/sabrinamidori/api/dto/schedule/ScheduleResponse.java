@@ -3,6 +3,7 @@ package com.sabrinamidori.api.dto.schedule;
 import com.sabrinamidori.api.domain.enums.Period;
 import com.sabrinamidori.api.domain.enums.WeekDay;
 
-public record ScheduleResponse(WeekDay weekDay,
-                               Period period) {
-}
+public record ScheduleResponse(
+        WeekDay weekDay,
+        Period period
+) {}
