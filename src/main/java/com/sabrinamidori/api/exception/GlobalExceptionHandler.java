@@ -15,6 +15,13 @@ public class GlobalExceptionHandler {
                 .body(e.getMessage());
     }
 
+    @ExceptionHandler(InvalidTaskScheduleException.class)
+    public ResponseEntity<String> handleInvalidSchedule(InvalidTaskScheduleException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<String> handleNotFound(ResourceNotFoundException e) {
         return ResponseEntity

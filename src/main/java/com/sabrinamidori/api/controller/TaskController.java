@@ -1,17 +1,19 @@
 package com.sabrinamidori.api.controller;
 
+import com.sabrinamidori.api.dto.task.DailyTasksResponse;
 import com.sabrinamidori.api.dto.task.TaskRequest;
 import com.sabrinamidori.api.dto.task.TaskResponse;
+import com.sabrinamidori.api.repository.TaskRepository;
 import com.sabrinamidori.api.service.TaskService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("subjects/{subjectId}")
+@RequestMapping("/tasks")
 public class TaskController {
 
     private final TaskService taskService;
@@ -20,32 +22,32 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @PostMapping("/tasks")
-    public ResponseEntity<TaskResponse> addTask(@PathVariable UUID subjectId,
-                                                @RequestBody TaskRequest task) {
-        TaskResponse response = taskService.createTask(subjectId, task);
+    @PostMapping()
+    public ResponseEntity<TaskResponse> addTask(@RequestBody TaskRequest request) {
+        TaskResponse response = taskService.createTask(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/tasks")
-    public ResponseEntity<List<TaskResponse>> getTasks(@PathVariable UUID subjectId) {
-        List<TaskResponse> response = taskService.getTasksBySubject(subjectId);
+    @GetMapping("/{plannedDate}")
+    public ResponseEntity<DailyTasksResponse> getTasks(@PathVariable LocalDate plannedDate) {
+        DailyTasksResponse response = taskService.getTasksByDay(plannedDate);
 
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<TaskResponse> updateTask(@PathVariable UUID id,
+                                                   @RequestBody TaskRequest request) {
+        TaskResponse response = taskService.updateTask(id, request);
 
-    // poder atualizar qualquer campo de uma task: description, duedatetime e status
-    @PatchMapping("/tasks/{taskId}")
-    public ResponseEntity<TaskResponse> updateTask(@PathVariable UUID subjectId,
-                                                   @PathVariable UUID taskId,
-                                                   @RequestBody TaskRequest) {
-
+        return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTask(@PathVariable UUID id) {
+        taskService.deleteTask(id);
 
-
-    // updateTask
-    // deleteTask
+        return ResponseEntity.noContent().build();
+    }
 }

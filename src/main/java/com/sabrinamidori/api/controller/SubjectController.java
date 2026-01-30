@@ -40,12 +40,14 @@ public class SubjectController {
     public ResponseEntity<SubjectResponse> updateSubject(@PathVariable UUID id,
                                                          @RequestBody SubjectRequest request) {
         SubjectResponse response = subjectService.updateSubject(id, request);
+
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSubject(@PathVariable UUID id) {
         subjectService.deleteSubject(id);
+
         return ResponseEntity.noContent().build();
     }
 }

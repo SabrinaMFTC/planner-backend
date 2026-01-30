@@ -1,16 +1,17 @@
 package com.sabrinamidori.api.service;
 
-import com.sabrinamidori.api.domain.entity.subject.Subject;
 import com.sabrinamidori.api.domain.entity.task.Task;
 import com.sabrinamidori.api.domain.enums.TaskStatus;
+import com.sabrinamidori.api.dto.task.DailyTasksResponse;
 import com.sabrinamidori.api.dto.task.TaskRequest;
 import com.sabrinamidori.api.dto.task.TaskResponse;
+import com.sabrinamidori.api.exception.InvalidTaskScheduleException;
 import com.sabrinamidori.api.exception.ResourceNotFoundException;
-import com.sabrinamidori.api.repository.SubjectRepository;
 import com.sabrinamidori.api.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,6 +25,8 @@ public class TaskService {
     }
 
     public TaskResponse createTask(TaskRequest data) {
+        validateSchedule(data);
+
         Task task = new Task();
         setData(task, data);
 
@@ -31,8 +34,14 @@ public class TaskService {
         return toTaskResponse(saved);
     }
 
-    public List<TaskResponse> getTasks() {
+    public DailyTasksResponse getTasksByDay(LocalDate date) {
+        LocalDateTime dayStart = date.atStartOfDay();
+        LocalDateTime dayEnd = date.plusDays(1).atStartOfDay();
 
+        List<Task> scheduled = taskRepository.findScheduledTasks(dayStart, dayEnd);
+        List<Task> unscheduled = taskRepository.findUnscheduledTasks(date);
+
+        return new DailyTasksResponse(scheduled, unscheduled, date);
     }
 
     public TaskResponse updateTask(UUID taskId, TaskRequest data) {
@@ -41,36 +50,58 @@ public class TaskService {
                         "Task with id " + taskId + " not found"
                 )));
 
-        if (data.status() != null) {
-            task.setTaskStatus(TaskStatus.from(data.status()));
-        }
-
-        if (data.description() != null) {
-            task.setDescription(data.description());
-        }
-
-        if (data.dueDateTime() != null) {
-            task.setDueDateTime(data.dueDateTime());
-        }
+        setData(task, data);
+        validateSchedule(data);
 
         Task saved = taskRepository.save(task);
         return toTaskResponse(saved);
     }
 
+    public void deleteTask(UUID taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Task with id " + taskId + " not found"
+                ));
+
+        taskRepository.delete(task);
+    }
+
+    private void validateSchedule(TaskRequest data) {
+        boolean scheduled =
+                data.startTime() != null &&
+                data.endTime() != null &&
+                data.startTime().isBefore(data.endTime());
+
+        boolean unscheduled =
+                data.startTime() == null &&
+                data.endTime() == null &&
+                data.plannedDate() != null;
+
+        if (!(scheduled || unscheduled)) {
+            throw new InvalidTaskScheduleException(
+                "Task must be either scheduled (start time and end time) or unscheduled with planned date"
+            );
+        }
+    }
+
     private void setData(Task task, TaskRequest data) {
-        task.setStartTime(data.startTime());
-        task.setEndTime(data.endTime());
-        task.setDescription(data.description());
-        task.setStatus(TaskStatus.from(data.status()));
-        task.setDueDateTime(data.dueDateTime());
+        if (data.startTime() != null) { task.setStartTime(data.startTime()); }
+        if (data.endTime() != null) { task.setEndTime(data.endTime()); }
+        if (data.plannedDate() != null) { task.setPlannedDate(data.plannedDate()); }
+        if (data.dueDateTime() != null) { task.setDueDateTime(data.dueDateTime()); }
+        if (data.description() != null) { task.setDescription(data.description()); }
+        if (data.status() != null) { task.setStatus(TaskStatus.from(data.status())); }
     }
 
     private TaskResponse toTaskResponse(Task task) {
         return new TaskResponse(
                 task.getId(),
-                task.getTaskStatus(),
+                task.getStartTime(),
+                task.getEndTime(),
+                task.getPlannedDate(),
+                task.getDueDateTime(),
                 task.getDescription(),
-                task.getDueDateTime()
+                task.getStatus()
         );
     }
 }
