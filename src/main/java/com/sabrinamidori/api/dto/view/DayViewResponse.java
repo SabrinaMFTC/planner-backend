@@ -6,5 +6,5 @@ import java.util.List;
 public record DayViewResponse(
         LocalDate date,
         List<ScheduledItemView> scheduledItems,     // scheduled tasks + subject blocks
-        List<TaskView> unscheduledItems             // plannedDate == date
+        List<UnscheduledItemView> unscheduledItems             // plannedDate == date
 ) {}

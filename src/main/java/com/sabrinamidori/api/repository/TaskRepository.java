@@ -26,5 +26,14 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
     );
 
     // Unscheduled tasks planned for that day
-    List<Task> findUnscheduledTasks(LocalDate plannedDate);
+    @Query("""
+        SELECT t
+        FROM Task t
+        WHERE t.startTime IS NULL
+          AND t.endTime IS NULL
+          AND t.plannedDate = :plannedDate
+    """)
+    List<Task> findUnscheduledTasks(
+            @Param("plannedDate") LocalDate plannedDate
+    );
 }

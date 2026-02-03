@@ -1,9 +1,10 @@
 package com.sabrinamidori.api.dto.schedule;
 
 import com.sabrinamidori.api.domain.enums.Period;
-import com.sabrinamidori.api.domain.enums.WeekDay;
+
+import java.time.DayOfWeek;
 
 public record ScheduleResponse(
-        WeekDay weekDay,
+        DayOfWeek weekDay,
         Period period
 ) {}

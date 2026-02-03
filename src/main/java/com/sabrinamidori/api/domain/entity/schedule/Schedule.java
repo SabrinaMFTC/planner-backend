@@ -2,17 +2,25 @@ package com.sabrinamidori.api.domain.entity.schedule;
 
 import com.sabrinamidori.api.domain.entity.subject.Subject;
 import com.sabrinamidori.api.domain.enums.Period;
-import com.sabrinamidori.api.domain.enums.WeekDay;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.DayOfWeek;
 import java.util.UUID;
 
 @Entity
-@Table(name = "subject_schedules")
+@Table(
+    name = "subject_schedules",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uk_subject_schedules_weekday_period",
+            columnNames = {"week_day", "period"}
+        )
+    }
+)
 @Getter
 @Setter
 @AllArgsConstructor
@@ -25,7 +33,7 @@ public class Schedule {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "week_day", nullable = false)
-    private WeekDay weekDay;
+    private DayOfWeek weekDay;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -2,17 +2,18 @@ package com.sabrinamidori.api.service;
 
 import com.sabrinamidori.api.domain.entity.subject.Subject;
 import com.sabrinamidori.api.domain.entity.schedule.Schedule;
-import com.sabrinamidori.api.domain.enums.Period;
-import com.sabrinamidori.api.domain.enums.WeekDay;
 import com.sabrinamidori.api.dto.schedule.ScheduleRequest;
 import com.sabrinamidori.api.dto.schedule.ScheduleResponse;
 import com.sabrinamidori.api.dto.subject.*;
 import com.sabrinamidori.api.exception.DuplicateResourceException;
 import com.sabrinamidori.api.exception.ResourceNotFoundException;
+import com.sabrinamidori.api.repository.ScheduleRepository;
 import com.sabrinamidori.api.repository.SubjectRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.sabrinamidori.api.domain.util.TextNormalizer.normalize;
@@ -21,16 +22,24 @@ import static com.sabrinamidori.api.domain.util.TextNormalizer.normalize;
 public class SubjectService {
 
     private final SubjectRepository subjectRepository;
+    private final ScheduleRepository scheduleRepository;
 
-    public SubjectService(SubjectRepository subjectRepository) {
+    public SubjectService(SubjectRepository subjectRepository, ScheduleRepository scheduleRepository) {
         this.subjectRepository = subjectRepository;
+        this.scheduleRepository = scheduleRepository;
     }
 
     public SubjectResponse createSubject(SubjectRequest data) {
         validateUniqueTitle(data.title(), null);
 
         Subject subject = new Subject();
-        setData(subject, data);
+        subject.setTitle(data.title());
+        subject.setProfessor(data.professor());
+
+        List<Schedule> schedules = buildSchedules(data.schedules(), subject);
+        validateUniqueSchedule(schedules, null);
+
+        replaceSchedules(subject, schedules);
 
         Subject saved = subjectRepository.save(subject);
         return toSubjectResponse(saved);
@@ -54,39 +63,50 @@ public class SubjectService {
         return toSubjectResponse(subject);
     }
 
-    public SubjectResponse updateSubject(UUID id, SubjectRequest data) {
-        Subject subject = subjectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Subject with id " + id + " not found"
-                ));
+    public SubjectResponse updateSubject(UUID subjectId, SubjectRequest data) {
+        Subject subject = subjectRepository.findById(subjectId)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Subject with id " + subjectId + " not found"
+            ));
 
-        validateUniqueTitle(data.title(), id);
+        if (data.title() != null) {
+            validateUniqueTitle(data.title(), subjectId);
+            subject.setTitle(data.title());
+        }
 
-        setData(subject, data);
+        if (data.professor() != null) {
+            subject.setProfessor(data.professor());
+        }
+
+        if (data.schedules() != null) {
+            List<Schedule> schedules = buildSchedules(data.schedules(), subject);
+            validateUniqueSchedule(schedules, subject.getId());
+            replaceSchedules(subject, schedules);
+        }
 
         Subject saved = subjectRepository.save(subject);
         return toSubjectResponse(saved);
     }
 
-    public void deleteSubject(UUID id) {
-        Subject subject = subjectRepository.findById(id)
+    public void deleteSubject(UUID subjectId) {
+        Subject subject = subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Subject with id " + id + " not found"
+                        "Subject with id " + subjectId + " not found"
                 ));
 
         subjectRepository.delete(subject);
     }
 
-    private void validateUniqueTitle(String title, UUID id) {
+    private void validateUniqueTitle(String title, UUID subjectId) {
         String normalized = normalize(title);
 
-        boolean exists = (id == null)
-                ? subjectRepository.existsByNormalizedTitle(normalized)
-                : subjectRepository.existsByNormalizedTitleAndIdNot(normalized, id);
+        boolean exists = (subjectId == null)
+            ? subjectRepository.existsByNormalizedTitle(normalized)
+            : subjectRepository.existsByNormalizedTitleAndIdNot(normalized, subjectId);
 
         if (exists) {
             throw new DuplicateResourceException(
-                    "Subject with title '" + title + "' already exists"
+                "Subject with title '" + title + "' already exists"
             );
         }
     }
@@ -97,18 +117,48 @@ public class SubjectService {
         }
 
         return schedules.stream()
-                .map(item -> {
-                    WeekDay weekDay = WeekDay.from(item.weekDay());
-                    Period period = Period.from(item.period());
+            .map(item -> {
+                Schedule schedule = new Schedule();
+                schedule.setWeekDay(item.weekDay());
+                schedule.setPeriod(item.period());
+                schedule.setSubject(subject);
+                return schedule;
+            })
+            .toList();
+}
 
-                    Schedule schedule = new Schedule();
-                    schedule.setWeekDay(weekDay);
-                    schedule.setPeriod(period);
-                    schedule.setSubject(subject);
+    private void validateUniqueSchedule(List<Schedule> schedules, UUID subjectId) {
+        Set<String> seen = new HashSet<>();
 
-                    return schedule;
-                })
-                .toList();
+        for (Schedule schedule : schedules) {
+            String key = schedule.getWeekDay() + ":" + schedule.getPeriod();
+
+            if (!seen.add(key)) {
+                throw new DuplicateResourceException(
+                    "Duplicate schedule in request: " +
+                    schedule.getWeekDay() + " " + schedule.getPeriod()
+                );
+            }
+        }
+
+        for (Schedule schedule : schedules) {
+            boolean exists = (subjectId == null)
+                ? scheduleRepository.existsByWeekDayAndPeriod(
+                    schedule.getWeekDay(),
+                    schedule.getPeriod())
+                : scheduleRepository.existsByWeekDayAndPeriodAndSubjectNot(
+                    schedule.getWeekDay(),
+                    schedule.getPeriod(),
+                    subjectId
+                );
+
+            if (exists) {
+                throw new DuplicateResourceException(
+                    "Schedule already taken: " +
+                    schedule.getWeekDay() + " " + schedule.getPeriod()
+                );
+            }
+        }
     }
 
     private SubjectResponse toSubjectResponse(Subject subject) {
@@ -130,12 +180,7 @@ public class SubjectService {
         );
     }
 
-    private void setData(Subject subject, SubjectRequest data) {
-        subject.setTitle(data.title());
-        subject.setProfessor(data.professor());
-
-        List<Schedule> schedules = buildSchedules(data.schedules(), subject);
-
+    private void replaceSchedules(Subject subject, List<Schedule> schedules) {
         subject.getSchedules().clear();
         subject.getSchedules().addAll(schedules);
     }
