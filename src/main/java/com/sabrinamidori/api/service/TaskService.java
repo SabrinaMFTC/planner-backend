@@ -69,28 +69,25 @@ public class TaskService {
     }
 
     private void validateSchedule(TaskRequest data) {
-        boolean scheduled =
-                data.startTime() != null &&
-                data.endTime() != null &&
-                data.startTime().isBefore(data.endTime());
-
-        boolean unscheduled =
-                data.startTime() == null &&
-                data.endTime() == null &&
-                data.plannedDate() != null;
-
-        if (!(scheduled || unscheduled)) {
+        if (data.startDateTime() == null ^ data.endDateTime() == null) {
             throw new InvalidTaskScheduleException(
-                "Task must be either scheduled (start time and end time) or unscheduled with planned date"
+                    "startDateTime and endDateTime must both be provided or both be null"
+            );
+        }
+
+        if (data.startDateTime() != null && !data.startDateTime().isBefore(data.endDateTime())) {
+            throw new InvalidTaskScheduleException(
+                    "startDateTime must be before endDateTime"
             );
         }
     }
 
     private void setData(Task task, TaskRequest data) {
-        if (data.startTime() != null) { task.setStartTime(data.startTime()); }
-        if (data.endTime() != null) { task.setEndTime(data.endTime()); }
+        if (data.startDateTime() != null) { task.setStartDateTime(data.startDateTime()); }
+        if (data.endDateTime() != null) { task.setEndDateTime(data.endDateTime()); }
         if (data.plannedDate() != null) { task.setPlannedDate(data.plannedDate()); }
-        if (data.dueDateTime() != null) { task.setDueDateTime(data.dueDateTime()); }
+        if (data.dueDate() != null) { task.setDueDate(data.dueDate()); }
+        if (data.dueTime() != null) { task.setDueTime(data.dueTime()); }
         if (data.description() != null) { task.setDescription(data.description()); }
         if (data.status() != null) { task.setStatus(TaskStatus.from(data.status())); }
     }
@@ -98,10 +95,11 @@ public class TaskService {
     private TaskResponse toTaskResponse(Task task) {
         return new TaskResponse(
                 task.getId(),
-                task.getStartTime(),
-                task.getEndTime(),
+                task.getStartDateTime(),
+                task.getEndDateTime(),
                 task.getPlannedDate(),
-                task.getDueDateTime(),
+                task.getDueDate(),
+                task.getDueTime(),
                 task.getDescription(),
                 task.getStatus()
         );

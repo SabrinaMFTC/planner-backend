@@ -4,14 +4,16 @@ import com.sabrinamidori.api.domain.enums.TaskStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.UUID;
 
 public record TaskResponse(
         UUID id,
-        LocalDateTime startTime,
-        LocalDateTime endTime,
+        LocalDateTime startDateTime,
+        LocalDateTime endDateTime,
         LocalDate plannedDate,
-        LocalDateTime dueDateTime,
+        LocalDate dueDate,
+        LocalTime dueTime,
         String description,
         TaskStatus status
 ) {}

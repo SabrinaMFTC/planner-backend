@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Entity
@@ -23,17 +24,20 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "start_time")
-    LocalDateTime startTime;
+    @Column(name = "start_date_time")
+    private LocalDateTime startDateTime;
 
-    @Column(name = "end_time")
-    LocalDateTime endTime;
+    @Column(name = "end_date_time")
+    private LocalDateTime endDateTime;
 
     @Column(name = "planned_date", nullable = false)
-    LocalDate plannedDate;
+    private LocalDate plannedDate;
 
-    @Column(name = "due_date_time", nullable = false)
-    private LocalDateTime dueDateTime;
+    @Column(name = "due_date", nullable = false)
+    private LocalDate dueDate;
+
+    @Column(name = "due_time")
+    private LocalTime dueTime;
 
     @Column(nullable = false)
     private String description;
