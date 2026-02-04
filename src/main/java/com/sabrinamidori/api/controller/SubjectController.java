@@ -33,7 +33,7 @@ public class SubjectController {
             return ResponseEntity.ok(List.of(subjectService.getSubjectByTitle(title)));
         }
 
-        return ResponseEntity.ok(subjectService.getSubjects());
+        return ResponseEntity.ok(subjectService.getAllSubjects());
     }
 
     @PutMapping("/{id}")

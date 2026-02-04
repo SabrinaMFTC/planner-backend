@@ -1,6 +1,5 @@
 package com.sabrinamidori.api.controller;
 
-import com.sabrinamidori.api.dto.task.DailyTasksResponse;
 import com.sabrinamidori.api.dto.task.TaskRequest;
 import com.sabrinamidori.api.dto.task.TaskResponse;
 import com.sabrinamidori.api.service.TaskService;
@@ -9,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -28,11 +28,13 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/{plannedDate}")
-    public ResponseEntity<DailyTasksResponse> getTasks(@PathVariable LocalDate plannedDate) {
-        DailyTasksResponse response = taskService.getTasksByDay(plannedDate);
+    @GetMapping()
+    public ResponseEntity<?> getTasks(@RequestParam(required = false) LocalDate plannedDate) {
+        if (plannedDate != null) {
+            return ResponseEntity.ok(taskService.getTasksByDay(plannedDate));
+        }
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(taskService.getAllTasks());
     }
 
     @PutMapping("/{id}")

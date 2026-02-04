@@ -29,7 +29,7 @@ public class Task {
     @Column(name = "end_time")
     LocalDateTime endTime;
 
-    @Column(name = "planned_date")
+    @Column(name = "planned_date", nullable = false)
     LocalDate plannedDate;
 
     @Column(name = "due_date_time", nullable = false)

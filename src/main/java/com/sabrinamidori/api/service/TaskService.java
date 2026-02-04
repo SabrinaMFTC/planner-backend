@@ -2,7 +2,6 @@ package com.sabrinamidori.api.service;
 
 import com.sabrinamidori.api.domain.entity.task.Task;
 import com.sabrinamidori.api.domain.enums.TaskStatus;
-import com.sabrinamidori.api.dto.task.DailyTasksResponse;
 import com.sabrinamidori.api.dto.task.TaskRequest;
 import com.sabrinamidori.api.dto.task.TaskResponse;
 import com.sabrinamidori.api.exception.InvalidTaskScheduleException;
@@ -11,7 +10,6 @@ import com.sabrinamidori.api.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,14 +32,18 @@ public class TaskService {
         return toTaskResponse(saved);
     }
 
-    public DailyTasksResponse getTasksByDay(LocalDate date) {
-        LocalDateTime dayStart = date.atStartOfDay();
-        LocalDateTime dayEnd = date.plusDays(1).atStartOfDay();
+    public List<TaskResponse> getAllTasks() {
+        return taskRepository.findAll()
+                .stream()
+                .map(this::toTaskResponse)
+                .toList();
+    }
 
-        List<Task> scheduled = taskRepository.findScheduledTasks(dayStart, dayEnd);
-        List<Task> unscheduled = taskRepository.findUnscheduledTasks(date);
-
-        return new DailyTasksResponse(scheduled, unscheduled, date);
+    public List<TaskResponse> getTasksByDay(LocalDate date) {
+        return taskRepository.findByPlannedDate(date)
+                .stream()
+                .map(this::toTaskResponse)
+                .toList();
     }
 
     public TaskResponse updateTask(UUID taskId, TaskRequest data) {
