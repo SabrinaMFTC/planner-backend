@@ -2,6 +2,7 @@ package com.sabrinamidori.api.service;
 
 import com.sabrinamidori.api.domain.entity.task.Task;
 import com.sabrinamidori.api.domain.enums.TaskStatus;
+import com.sabrinamidori.api.domain.enums.TaskType;
 import com.sabrinamidori.api.dto.task.TaskRequest;
 import com.sabrinamidori.api.dto.task.TaskResponse;
 import com.sabrinamidori.api.exception.InvalidTaskScheduleException;
@@ -10,6 +11,7 @@ import com.sabrinamidori.api.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,10 +25,15 @@ public class TaskService {
     }
 
     public TaskResponse createTask(TaskRequest data) {
-        validateSchedule(data);
+        validateSchedule(data.startDateTime(), data.endDateTime());
 
         Task task = new Task();
-        setData(task, data);
+        task.setPlannedDate(data.plannedDate());
+        task.setDueDateTime(data.dueDateTime());
+        task.setDescription(data.description());
+        task.setStatus(TaskStatus.from(data.status()));
+
+        setTimeAndType(task, data);
 
         Task saved = taskRepository.save(task);
         return toTaskResponse(saved);
@@ -52,8 +59,16 @@ public class TaskService {
                         "Task with id " + taskId + " not found"
                 )));
 
-        setData(task, data);
-        validateSchedule(data);
+        if (data.plannedDate() != null) { task.setPlannedDate(data.plannedDate()); }
+        if (data.dueDateTime() != null) { task.setDueDateTime(data.dueDateTime()); }
+        if (data.description() != null) { task.setDescription(data.description()); }
+        if (data.status() != null) { task.setStatus(TaskStatus.from(data.status())); }
+
+        if (data.hasScheduleInfo()) {
+            setTimeAndType(task, data);
+        }
+
+        validateSchedule(task.getStartDateTime(), task.getEndDateTime());
 
         Task saved = taskRepository.save(task);
         return toTaskResponse(saved);
@@ -82,14 +97,30 @@ public class TaskService {
         }
     }
 
-    private void setData(Task task, TaskRequest data) {
-        if (data.startDateTime() != null) { task.setStartDateTime(data.startDateTime()); }
-        if (data.endDateTime() != null) { task.setEndDateTime(data.endDateTime()); }
-        if (data.plannedDate() != null) { task.setPlannedDate(data.plannedDate()); }
-        if (data.dueDate() != null) { task.setDueDate(data.dueDate()); }
-        if (data.dueTime() != null) { task.setDueTime(data.dueTime()); }
-        if (data.description() != null) { task.setDescription(data.description()); }
-        if (data.status() != null) { task.setStatus(TaskStatus.from(data.status())); }
+    private void validateSchedule(LocalDateTime start, LocalDateTime end) {
+        if (start == null ^ end == null) {
+            throw new InvalidTaskScheduleException(
+                    "startDateTime and endDateTime must both be provided or both be null"
+            );
+        }
+
+        if (start != null && !start.isBefore(end)) {
+            throw new InvalidTaskScheduleException(
+                    "startDateTime must be before endDateTime"
+            );
+        }
+    }
+
+    private void setTimeAndType(Task task, TaskRequest data) {
+        if (data.startDateTime() != null && data.endDateTime() != null) {
+            task.setStartDateTime(data.startDateTime());
+            task.setEndDateTime(data.endDateTime());
+            task.setType(TaskType.SCHEDULED);
+        } else {
+            task.setStartDateTime(null);
+            task.setEndDateTime(null);
+            task.setType(TaskType.UNSCHEDULED);
+        }
     }
 
     private TaskResponse toTaskResponse(Task task) {
@@ -98,8 +129,7 @@ public class TaskService {
                 task.getStartDateTime(),
                 task.getEndDateTime(),
                 task.getPlannedDate(),
-                task.getDueDate(),
-                task.getDueTime(),
+                task.getDueDateTime(),
                 task.getDescription(),
                 task.getStatus()
         );
