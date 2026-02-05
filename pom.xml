@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.sabrinamidori</groupId>
-	<artifactId>studyplanner</artifactId>
+	<artifactId>planner</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>api</name>
-	<description>Study Planner Backend</description>
+	<description>Planner Backend</description>
 	<url/>
 	<licenses>
 		<license/>
