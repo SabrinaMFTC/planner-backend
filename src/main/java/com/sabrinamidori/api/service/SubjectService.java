@@ -9,6 +9,7 @@ import com.sabrinamidori.api.exception.DuplicateResourceException;
 import com.sabrinamidori.api.exception.ResourceNotFoundException;
 import com.sabrinamidori.api.repository.ScheduleRepository;
 import com.sabrinamidori.api.repository.SubjectRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -19,15 +20,11 @@ import java.util.UUID;
 import static com.sabrinamidori.api.domain.util.TextNormalizer.normalize;
 
 @Service
+@RequiredArgsConstructor
 public class SubjectService {
 
     private final SubjectRepository subjectRepository;
     private final ScheduleRepository scheduleRepository;
-
-    public SubjectService(SubjectRepository subjectRepository, ScheduleRepository scheduleRepository) {
-        this.subjectRepository = subjectRepository;
-        this.scheduleRepository = scheduleRepository;
-    }
 
     public SubjectResponse createSubject(SubjectRequest data) {
         validateUniqueTitle(data.title(), null);

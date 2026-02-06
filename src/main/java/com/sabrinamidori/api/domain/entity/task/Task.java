@@ -19,7 +19,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Task {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;

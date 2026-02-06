@@ -20,7 +20,6 @@ import static com.sabrinamidori.api.domain.util.TextNormalizer.normalize;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Subject {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;

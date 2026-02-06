@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface SubjectRepository extends JpaRepository<Subject, UUID> {
-
     @Query("""
         SELECT s
         FROM Subject s

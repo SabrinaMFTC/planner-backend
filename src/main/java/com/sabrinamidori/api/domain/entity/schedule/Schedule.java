@@ -26,7 +26,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Schedule {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;

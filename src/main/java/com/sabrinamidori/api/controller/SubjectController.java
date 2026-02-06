@@ -3,6 +3,7 @@ package com.sabrinamidori.api.controller;
 import com.sabrinamidori.api.dto.subject.SubjectRequest;
 import com.sabrinamidori.api.dto.subject.SubjectResponse;
 import com.sabrinamidori.api.service.SubjectService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,13 +13,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/subjects")
+@RequiredArgsConstructor
 public class SubjectController {
 
     private final SubjectService subjectService;
-
-    public SubjectController(SubjectService subjectService) {
-        this.subjectService = subjectService;
-    }
 
     @PostMapping
     public ResponseEntity<SubjectResponse> createSubject(@RequestBody SubjectRequest request) {
