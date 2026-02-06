@@ -9,9 +9,6 @@ CREATE TABLE tasks (
     type VARCHAR(20) NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_tasks_start_date_time ON tasks (start_date_time);
-CREATE INDEX IF NOT EXISTS idx_tasks_end_date_time ON tasks (end_date_time);
-CREATE INDEX IF NOT EXISTS idx_tasks_planned_date ON tasks (planned_date);
-CREATE INDEX IF NOT EXISTS idx_tasks_due_date_time ON tasks (due_date_time);
-CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks (status);
-CREATE INDEX IF NOT EXISTS idx_tasks_type ON tasks (type);
+CREATE INDEX idx_tasks_planned_date ON tasks (planned_date);
+CREATE INDEX idx_tasks_due_date_time ON tasks (due_date_time);
+CREATE INDEX idx_tasks_status ON tasks (status);

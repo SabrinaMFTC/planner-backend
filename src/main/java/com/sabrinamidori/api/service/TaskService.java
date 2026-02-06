@@ -8,6 +8,7 @@ import com.sabrinamidori.api.dto.task.TaskResponse;
 import com.sabrinamidori.api.exception.InvalidTaskScheduleException;
 import com.sabrinamidori.api.exception.ResourceNotFoundException;
 import com.sabrinamidori.api.repository.TaskRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -16,13 +17,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class TaskService {
 
     private final TaskRepository taskRepository;
-
-    public TaskService(TaskRepository taskRepository) {
-        this.taskRepository = taskRepository;
-    }
 
     public TaskResponse createTask(TaskRequest data) {
         validateSchedule(data.startDateTime(), data.endDateTime());
