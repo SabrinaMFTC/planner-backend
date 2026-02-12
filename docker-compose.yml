@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16
-    container_name: planner
+    container_name: planner-backend
     restart: unless-stopped
     environment:
       POSTGRES_DB: planner

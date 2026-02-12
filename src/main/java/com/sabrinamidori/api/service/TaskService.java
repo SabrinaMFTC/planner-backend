@@ -1,6 +1,7 @@
 package com.sabrinamidori.api.service;
 
 import com.sabrinamidori.api.domain.entity.task.Task;
+import com.sabrinamidori.api.domain.entity.user.User;
 import com.sabrinamidori.api.domain.enums.TaskStatus;
 import com.sabrinamidori.api.domain.enums.TaskType;
 import com.sabrinamidori.api.dto.task.TaskRequest;
@@ -8,7 +9,10 @@ import com.sabrinamidori.api.dto.task.TaskResponse;
 import com.sabrinamidori.api.exception.InvalidTaskScheduleException;
 import com.sabrinamidori.api.exception.ResourceNotFoundException;
 import com.sabrinamidori.api.repository.TaskRepository;
+import com.sabrinamidori.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -21,8 +25,15 @@ import java.util.UUID;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
 
     public TaskResponse createTask(TaskRequest data) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        User user = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         validateSchedule(data.startDateTime(), data.endDateTime());
 
         Task task = new Task();
@@ -30,8 +41,9 @@ public class TaskService {
         task.setDueDateTime(data.dueDateTime());
         task.setDescription(data.description());
         task.setStatus(TaskStatus.from(data.status()));
-
         setTimeAndType(task, data);
+
+        task.setUser(user);
 
         Task saved = taskRepository.save(task);
         return toTaskResponse(saved);
