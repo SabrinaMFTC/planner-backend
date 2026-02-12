@@ -1,6 +1,7 @@
 package com.sabrinamidori.api.domain.entity.subject;
 
 import com.sabrinamidori.api.domain.entity.schedule.Schedule;
+import com.sabrinamidori.api.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,6 +36,10 @@ public class Subject {
 
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Schedule> schedules = new ArrayList<>();
+
+    @ManyToOne()
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @PrePersist
     @PreUpdate

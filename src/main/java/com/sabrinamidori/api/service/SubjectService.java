@@ -2,6 +2,7 @@ package com.sabrinamidori.api.service;
 
 import com.sabrinamidori.api.domain.entity.subject.Subject;
 import com.sabrinamidori.api.domain.entity.schedule.Schedule;
+import com.sabrinamidori.api.domain.entity.user.User;
 import com.sabrinamidori.api.dto.schedule.ScheduleRequest;
 import com.sabrinamidori.api.dto.schedule.ScheduleResponse;
 import com.sabrinamidori.api.dto.subject.*;
@@ -9,7 +10,10 @@ import com.sabrinamidori.api.exception.DuplicateResourceException;
 import com.sabrinamidori.api.exception.ResourceNotFoundException;
 import com.sabrinamidori.api.repository.ScheduleRepository;
 import com.sabrinamidori.api.repository.SubjectRepository;
+import com.sabrinamidori.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -25,8 +29,15 @@ public class SubjectService {
 
     private final SubjectRepository subjectRepository;
     private final ScheduleRepository scheduleRepository;
+    private final UserRepository userRepository;
 
     public SubjectResponse createSubject(SubjectRequest data) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         validateUniqueTitle(data.title(), null);
 
         Subject subject = new Subject();
@@ -37,6 +48,8 @@ public class SubjectService {
         validateUniqueSchedule(schedules, null);
 
         replaceSchedules(subject, schedules);
+
+        subject.setUser(user);
 
         Subject saved = subjectRepository.save(subject);
         return toSubjectResponse(saved);

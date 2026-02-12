@@ -1,5 +1,6 @@
 package com.sabrinamidori.api.domain.entity.task;
 
+import com.sabrinamidori.api.domain.entity.user.User;
 import com.sabrinamidori.api.domain.enums.TaskStatus;
 import com.sabrinamidori.api.domain.enums.TaskType;
 import jakarta.persistence.*;
@@ -45,4 +46,8 @@ public class Task {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TaskType type;
+
+    @ManyToOne()
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

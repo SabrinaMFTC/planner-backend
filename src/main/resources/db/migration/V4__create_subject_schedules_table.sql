@@ -6,12 +6,12 @@ CREATE TABLE subject_schedules (
 
     CONSTRAINT fk_schedule_subject
        FOREIGN KEY (subject_id)
-       REFERENCES subjects(id)
+       REFERENCES subjects (id)
        ON DELETE CASCADE,
 
     CONSTRAINT uk_subject_schedules_weekday_period
        UNIQUE (week_day, period)
 );
 
-CREATE INDEX idx_subject_schedules_subject_id ON subject_schedules(subject_id);
-CREATE INDEX idx_subject_schedules_week_day ON subject_schedules(week_day);
+CREATE INDEX idx_subject_schedules_subject_id ON subject_schedules (subject_id);
+CREATE INDEX idx_subject_schedules_week_day ON subject_schedules (week_day);
