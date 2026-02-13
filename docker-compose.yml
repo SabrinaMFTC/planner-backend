@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16
-    container_name: planner-backend
+    container_name: planner-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: planner
@@ -11,6 +11,23 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - planner-net
+
+  app:
+    build: .
+    container_name: planner-backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    networks:
+      - planner-net
 
 volumes:
   postgres_data:
+
+networks:
+  planner-net:
+    driver: bridge
