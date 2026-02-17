@@ -3,6 +3,7 @@ package com.sabrinamidori.api.controller;
 import com.sabrinamidori.api.dto.task.TaskRequest;
 import com.sabrinamidori.api.dto.task.TaskResponse;
 import com.sabrinamidori.api.service.TaskService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.UUID;
 
+@Tag(name = "Task", description = "Task management APIs")
 @RestController
 @RequestMapping("/tasks")
 @RequiredArgsConstructor
