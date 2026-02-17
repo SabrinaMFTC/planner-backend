@@ -3,6 +3,7 @@ package com.sabrinamidori.api.controller;
 import com.sabrinamidori.api.dto.subject.SubjectRequest;
 import com.sabrinamidori.api.dto.subject.SubjectResponse;
 import com.sabrinamidori.api.service.SubjectService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,9 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Subject", description = "Subject management APIs")
 @RestController
 @RequestMapping("/subjects")
 @RequiredArgsConstructor
+@CrossOrigin
 public class SubjectController {
 
     private final SubjectService subjectService;
