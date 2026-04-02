@@ -1,6 +1,6 @@
 # 📚 Planner API
 
-A secure and structured backend API that allows authenticated users to manage their academic life by creating and organizing **subjects and tasks**.
+A secure and structured backend API that allows authenticated users to manage their activities by creating and organizing subjects and tasks — including, but not limited to, academic use cases.
 
 This project was designed to simulate a real-world backend system, focusing on authentication, data integrity, relational modeling, and clean architecture using modern Java ecosystem tools.
 
